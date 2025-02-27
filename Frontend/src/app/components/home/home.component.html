@@ -2,5 +2,7 @@
     <h1>Home</h1>
 </header>
 
-<!-- <button class="btn btn-primary" (click)="goLogin()">Login</button>
-<button class="btn btn-primary" (click)="goRegister()">Register</button> -->
+<div class="d-flex m-2">
+    <button class="btn btn-primary" [disabled]="!firebaseService.user">My models</button>
+    <button class="btn btn-primary" [disabled]="!firebaseService.user" (click)="goDevices()">My devices</button>
+</div>

@@ -9,7 +9,7 @@ import { FirebaseService } from '../../core/firebase.service';
 })
 
 export class HomeComponent {
-  constructor(private router: Router, public FirebaseService: FirebaseService) {};
+  constructor(private router: Router, public firebaseService: FirebaseService) {};
 
   goLogin() {
     this.router.navigate(['login'])
@@ -17,5 +17,9 @@ export class HomeComponent {
 
   goRegister() {
     this.router.navigate(['register'])
+  }
+
+  goDevices() {
+    this.router.navigate(['devices']);
   }
 }

@@ -22,6 +22,7 @@ export class AppComponent {
   async logout() {
     try {
       this.firebaseService.logout();
+      this.router.navigate(['/']);
     } catch (error) {
       console.log(error);
     }

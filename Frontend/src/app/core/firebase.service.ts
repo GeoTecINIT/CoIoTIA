@@ -8,7 +8,7 @@ import { Auth,
          signOut,
          onAuthStateChanged,
          validatePassword } from "firebase/auth";
-import { Firestore, getFirestore, doc, setDoc } from "firebase/firestore";
+import { Firestore, getFirestore, doc, setDoc, collection, getDocs, getDoc, addDoc, deleteDoc } from "firebase/firestore";
 import { firebaseConfig } from "../environments/environment"; 
 
 @Injectable({
@@ -71,5 +71,76 @@ export class FirebaseService {
         console.log(status);
       })
   }
+
+  async getTypes() {
+    try {
+      const analysisTypeRef = doc(collection(this.db, "values"), "analysis_type");
+      const dataTypeRef = doc(collection(this.db, "values"), "data_type");
+
+      const analysisTypeSnap = await getDoc(analysisTypeRef);
+      const dataTypeSnap = await getDoc(dataTypeRef);
   
+      if (analysisTypeSnap.exists() && dataTypeSnap.exists()) {
+        const analysisTypeData = analysisTypeSnap.data();
+        const dataTypeData = dataTypeSnap.data();
+        return { analysis_type: analysisTypeData['types'], data_type: dataTypeData['types'] };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      return null;
+    }
+  }
+
+  private getDevicesCollection() {
+    if (this.user) {
+      return collection(doc(this.db, "users", this.user?.uid), "devices");
+    }
+    else {
+      return null;
+    }
+  }
+
+  async getDevices() {
+    const devicesCollection = this.getDevicesCollection();
+    if (devicesCollection) {
+      try {
+        const snapshot = await getDocs(devicesCollection);
+        const devices = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        return devices;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
+
+  async addDevice(analysis_type: string, data_type: string) {
+    try {
+      const userCollection = collection(this.db, "users");
+      const userDoc = doc(userCollection, this.user?.uid);
+      const deviceCollection = collection(userDoc, "devices");
+
+      await addDoc(deviceCollection, {analysis_type, data_type});
+    } catch(error: any) {
+      console.log(error);
+    }
+  }
+
+  async deleteDevice(id: string) {
+    if (this.user) {
+      try {
+        const deviceDoc = doc(this.db, "users", this.user?.uid, "devices", id);
+  
+        await deleteDoc(deviceDoc);
+      } catch(error: any) {
+        console.log(error);
+      }
+    }
+  }
 }

@@ -16,6 +16,10 @@ export class RegisterComponent {
 
   constructor(private router: Router, public firebaseService: FirebaseService) {};
 
+  goLogin() {
+    this.router.navigate(['login'])
+  }
+
   async register(formValues: any) {
     if (formValues.password !== formValues.password_confirm) {
       this.errorMessage = "Passwords must match";

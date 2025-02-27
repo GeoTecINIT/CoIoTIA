@@ -1,1 +1,18 @@
+<header>
+    <div class="d-flex justify-content-between m-3">
+        <div class="mt-2"> 
+          <img src="logo.png" alt="Logo" class="img-fluid w-25" style="max-width: 1000px;" (click)="router.navigate(['/'])"> 
+        </div>
+        <div *ngIf="router.url !== '/login' && router.url !== '/register'" class="d-flex flex-column">
+            <div *ngIf="firebaseService.user?.email !== null; else elseBlock" class="">
+                <p>Welcome, {{ firebaseService.user?.email }}</p>
+                <button class="btn btn-danger" (click)="logout()">Logout</button>
+            </div>
+            <ng-template #elseBlock>
+                <button class="btn btn-primary" (click)="goLogin()">Login</button>
+            </ng-template>
+        </div>
+      </div>
+</header>
+
 <router-outlet></router-outlet>

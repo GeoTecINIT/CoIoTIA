@@ -2,21 +2,24 @@
     <h1>Register</h1>
 </header>
 
-<form class="m-5 p-3 border rounded" #registerForm="ngForm" (ngSubmit)="register(registerForm.value)">
-    <div class="mb-3">
-      <label for="email" class="form-label">Email address</label>
-      <input type="email" class="form-control" id="email" placeholder="Email" name="email" ngModel required>
-    </div>
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input type="password" class="form-control" id="password" placeholder="Password" name="password" ngModel required>
-    </div>
-    <div class="mb-3">
-        <label for="password_confirm" class="form-label">Confirm password</label>
-        <input type="password" class="form-control" id="password_confirm" placeholder="Password" name="password_confirm" ngModel required>
-    </div>
-    <div *ngIf="errorMessage" class="alert alert-danger">
-        {{ errorMessage }}
-    </div>
-    <button type="submit" class="btn btn-primary" [disabled]="!registerForm.valid">Register</button>
-</form>
+<div class="m-5">
+  <form class="p-3 border rounded" #registerForm="ngForm" (ngSubmit)="register(registerForm.value)">
+      <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="email" placeholder="Email" name="email" ngModel required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Password" name="password" ngModel required>
+      </div>
+      <div class="mb-3">
+          <label for="password_confirm" class="form-label">Confirm password</label>
+          <input type="password" class="form-control" id="password_confirm" placeholder="Password" name="password_confirm" ngModel required>
+      </div>
+      <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="!registerForm.valid">Register</button>
+  </form>
+  <button class="btn btn-success mt-3" (click)="goLogin()">Login</button>
+</div>

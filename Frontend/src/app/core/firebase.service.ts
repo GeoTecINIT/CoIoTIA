@@ -22,6 +22,7 @@ export class FirebaseService {
 
   constructor() {
     const app = initializeApp(firebaseConfig);
+    this.user = null;
     this.auth = getAuth(app);
     this.db = getFirestore(app);
     this.initAuthStateListener();

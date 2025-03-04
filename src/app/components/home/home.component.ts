@@ -22,4 +22,8 @@ export class HomeComponent {
   goDevices() {
     this.router.navigate(['devices']);
   }
+
+  goModels() {
+    this.router.navigate(['models']);
+  }
 }

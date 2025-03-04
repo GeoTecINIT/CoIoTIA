@@ -12,8 +12,9 @@ import { CommonModule } from '@angular/common';
 
 export class DevicesComponent implements OnInit {
   devices: any = [];
-  analysis_types: any = [];
-  data_types: any = [];
+  analysis_types: any = {};
+  data_types: any = {};
+  invalid: boolean = false;
 
   constructor(public firebaseService: FirebaseService) {};
 
@@ -25,11 +26,18 @@ export class DevicesComponent implements OnInit {
     await new Promise(r => setTimeout(r, 300));
     this.devices = await this.firebaseService.getDevices();
     const types = await this.firebaseService.getTypes();
-    this.analysis_types = types?.analysis_type;
-    this.data_types = types?.data_type;
+    this.analysis_types = types?.analysisTypes;
+    this.data_types = types?.dataTypes;
   }
 
   async addDevice(formValues: any) {
+    this.invalid = false;
+
+    if (formValues.analysis_type === '' || formValues.data_type === '') {
+      this.invalid = true;
+      return;
+    }
+    
     try {
       await this.firebaseService.addDevice(formValues.analysis_type, formValues.data_type);
       this.devices = await this.firebaseService.getDevices();

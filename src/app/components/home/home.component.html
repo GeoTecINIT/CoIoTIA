@@ -1,8 +1,8 @@
 <header class="m-2">
-    <h1>Home</h1>
+    <h3>Home</h3>
 </header>
 
 <div class="d-flex m-2">
-    <button class="btn btn-primary m-1" [disabled]="!firebaseService.user">My models</button>
+    <button class="btn btn-primary m-1" [disabled]="!firebaseService.user" (click)="goModels()">My models</button>
     <button class="btn btn-primary m-1" [disabled]="!firebaseService.user" (click)="goDevices()">My devices</button>
 </div>

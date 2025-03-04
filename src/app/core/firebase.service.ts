@@ -75,20 +75,27 @@ export class FirebaseService {
 
   async getTypes() {
     try {
-      const analysisTypeRef = doc(collection(this.db, "values"), "analysis_type");
-      const dataTypeRef = doc(collection(this.db, "values"), "data_type");
+      const analysisTypesCol = collection(this.db, "analysis_type");
+      const analysisTypesSnap = await getDocs(analysisTypesCol);
+      const analysisTypes = analysisTypesSnap.docs.map((doc) => doc.data());
 
-      const analysisTypeSnap = await getDoc(analysisTypeRef);
-      const dataTypeSnap = await getDoc(dataTypeRef);
-  
-      if (analysisTypeSnap.exists() && dataTypeSnap.exists()) {
-        const analysisTypeData = analysisTypeSnap.data();
-        const dataTypeData = dataTypeSnap.data();
-        return { analysis_type: analysisTypeData['types'], data_type: dataTypeData['types'] };
-      } else {
-        return null;
-      }
+      const analysisDict = analysisTypes.reduce((acc, doc) => {
+        acc[doc["id"]] = doc["name"];
+        return acc;
+      }, {});
+
+      const dataTypesCol = collection(this.db, "data_type");
+      const dataTypesSnap = await getDocs(dataTypesCol);
+      const dataTypes = dataTypesSnap.docs.map((doc) => doc.data());
+
+      const dataDict = dataTypes.reduce((acc, doc) => {
+        acc[doc["id"]] = doc["name"];
+        return acc;
+      }, {});
+
+      return { analysisTypes : analysisDict, dataTypes : dataDict };;
     } catch (error) {
+      console.log(error);
       return null;
     }
   }

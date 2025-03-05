@@ -15,8 +15,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div *ngIf="uploadError" class="alert alert-danger alert-dismissible fade show" role="alert">
-        Error uploading model. Please try again.
+    <div *ngIf="uploadError.show" class="alert alert-danger alert-dismissible fade show" role="alert">
+        Error uploading model. Please try again. (Code: {{ uploadError.code }})
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
@@ -27,6 +27,8 @@
                     <th>Model name</th>
                     <th>Analysis type</th>
                     <th>Data type</th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -34,6 +36,12 @@
                     <td>{{ model.model_name }}</td>
                     <td>{{ analysis_types[model.analysis_type] }}</td>
                     <td>{{ data_types[model.data_type] }}</td>
+                    <td>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modelsModal">
+                            Update
+                        </button>
+                    </td>
+                    <td><button class="btn btn-danger" (click)="deleteModel(model.model_name)">Delete</button></td>
                 </tr>
             </tbody>
         </table>
@@ -68,3 +76,24 @@
     </div>
 
 </div>
+
+
+<div class="modal fade" id="modelsModal" tabindex="-1" aria-labelledby="modelsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modelsModalLabel">Upload File</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="updateModel()">
+            <div class="mb-3">
+              <label for="fileInput" class="form-label">Choose file</label>
+              <input type="file" class="form-control" id="fileInput" (change)="onUpdateChange($event)">
+            </div>
+            <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Update</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

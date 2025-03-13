@@ -30,7 +30,29 @@ export class FirebaseService {
 
   private initAuthStateListener() {
     onAuthStateChanged(this.auth, (user) => {
-      this.user = user;
+      if (user) {
+        this.user = user;
+      }
+    });
+  }
+
+  async ensureAuthenticated() {
+    if (this.user) return this.user;
+    
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        unsubscribe();
+        reject(new Error('Authentication timed out'));
+      }, 10000);
+      
+      const unsubscribe = onAuthStateChanged(this.auth, (user) => {
+        if (user) {
+          this.user = user;
+          clearTimeout(timeout);
+          unsubscribe();
+          resolve(user);
+        }
+      });
     });
   }
 

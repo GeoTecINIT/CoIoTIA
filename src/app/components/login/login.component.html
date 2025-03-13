@@ -1,8 +1,8 @@
-<header class="m-2">
-    <h1>Login</h1>
+<header class="m-3">
+    <h3>Login</h3>
 </header>
 
-<div class="m-5">
+<div class="m-4">
   <form class="p-3 border rounded" #loginForm="ngForm" (ngSubmit)="login(loginForm.value)">
       <div class="mb-3">
         <label for="email" class="form-label">Email address</label>
@@ -16,6 +16,8 @@
           {{ errorMessage }}
       </div>
       <button type="submit" class="btn btn-primary" [disabled]="!loginForm.valid">Login</button>
-  </form>
-  <button class="btn btn-success mt-3" (click)="goRegister()">Register</button>
+  </form><div class="align-items-center m-3 ">
+    <span class="me-2">Don't have an account?</span>
+    <button class="btn btn-success" (click)="goRegister()">Register</button>
+  </div>
 </div>

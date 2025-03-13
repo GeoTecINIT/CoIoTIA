@@ -23,11 +23,15 @@ export class DevicesComponent implements OnInit {
   }
 
   async getDevices() {
-    await new Promise(r => setTimeout(r, 300));
-    this.devices = await this.firebaseService.getDevices();
-    const types = await this.firebaseService.getTypes();
-    this.analysis_types = types?.analysisTypes;
-    this.data_types = types?.dataTypes;
+    try {
+      await this.firebaseService.ensureAuthenticated();
+      this.devices = await this.firebaseService.getDevices();
+      const types = await this.firebaseService.getTypes();
+      this.analysis_types = types?.analysisTypes;
+      this.data_types = types?.dataTypes;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async addDevice(formValues: any) {

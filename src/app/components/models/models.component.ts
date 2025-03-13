@@ -40,22 +40,23 @@ export class ModelsComponent implements OnInit {
   }
 
   async getModels() {
-    await new Promise(r => setTimeout(r, 300));
-
-    if (!this.firebaseService.user) {
-      console.log('User not logged in');
-      return;
+    try {
+      await this.firebaseService.ensureAuthenticated();
+      if (this.firebaseService.user === null) return;
+      const formData = new FormData();
+      formData.append('user_uid', this.firebaseService.user?.uid);
+      axios.post('http://127.0.0.1:5000/list', formData)
+        .then((response) => {
+          this.models = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
     }
 
-    const formData = new FormData();
-    formData.append('user_uid', this.firebaseService.user.uid);
-    axios.post('http://127.0.0.1:5000/list', formData)
-      .then((response) => {
-        this.models = response.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    
   }
 
   uploadModel(formValues: any) {

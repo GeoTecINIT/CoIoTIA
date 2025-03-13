@@ -1,6 +1,7 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { FirebaseService } from '../../core/firebase.service';
 import * as L from 'leaflet';
+import 'leaflet-draw';
 import axios from 'axios';
 
 import { icon, Marker } from 'leaflet';
@@ -26,7 +27,9 @@ Marker.prototype.options.icon = iconDefault;
 })
 
 export class MapComponent implements AfterViewInit {
-  private map: any;
+  private map!: L.Map;
+  private markerGroup!: L.FeatureGroup;
+  private drawnItems!: L.FeatureGroup;
   models: any = [];
   analysis_types: any = {};
   data_types: any = {};
@@ -45,18 +48,89 @@ export class MapComponent implements AfterViewInit {
       zoom: 12
     });
 
-    const tiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    const openStreetLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 20,
+      minZoom: 3,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    });
+
+    const topographicLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       minZoom: 3,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     });
 
-    tiles.addTo(this.map);
+     const maps = {
+      "OpenStreetMap" : openStreetLayer,
+      "Topographic" : topographicLayer,
+    }
 
-    const icon = L.icon({
-      iconUrl: 'node _modules/leaflet/dist/images/marker-icon.png',
-      shadowUrl: 'node_modules/leaflet/dist/images/marker-shadow.png'
+    openStreetLayer.addTo(this.map);
+
+    L.control.layers(maps).addTo(this.map);
+
+    this.markerGroup = L.featureGroup().addTo(this.map);
+
+    this.setupDrawOptions();
+  }
+
+
+  setupDrawOptions() {
+    this.drawnItems = new L.FeatureGroup();
+    this.map.addLayer(this.drawnItems);
+
+    const drawControl = new L.Control.Draw({
+      draw: {
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+        polygon: {
+          allowIntersection: false,
+          drawError: {
+            color: 'red',
+            message: 'Lines can not intersect'
+          },
+          shapeOptions: {
+            color: 'blue'
+          }
+        }
+      },
+      edit: {
+        featureGroup: this.drawnItems,
+        remove: true
+      }
+    });
+    this.map.addControl(drawControl);
+
+    this.map.on(L.Draw.Event.CREATED, (event: L.LeafletEvent) => {
+      this.drawnItems.clearLayers();
+
+      const layer = (event as L.DrawEvents.Created).layer as L.Polygon;
+      this.drawnItems.addLayer(layer);
+
+      layer.setStyle({color: 'green'});
+
+      const vertices = (layer as L.Polygon).getLatLngs()[0] as L.LatLng[];
+      const vertexList = vertices.map((latlng: L.LatLng) => [latlng.lat, latlng.lng]);
+      this.getPolygonIntersections(vertexList);
     })
+
+    this.map.on('draw:edited', (event) => {
+      const editedLayers = (event as L.DrawEvents.Edited).layers;
+      editedLayers.eachLayer((layer: L.Layer) => {
+        if (layer instanceof L.Polygon) {
+          const vertices = layer.getLatLngs()[0] as L.LatLng[];
+          const vertexList = vertices.map((latlng: L.LatLng) => [latlng.lat, latlng.lng]);
+          this.getPolygonIntersections(vertexList);
+        }
+      })
+    });
+
+    this.map.on('draw:deleted', (event) => {
+      this.getAllModels();
+    });
   }
 
 
@@ -80,20 +154,33 @@ export class MapComponent implements AfterViewInit {
 
 
   addModelMarkers() {
+    this.markerGroup.clearLayers();
     for (let model of this.models) {
       let coords = model["location"]["geometry"]["coordinates"];
-      L.marker(coords).addTo(this.map)
+      L.marker(coords).addTo(this.markerGroup)
         .bindPopup(
           `
           <b>${model["model_name"]}</b>
           <br/>
-          Type: ${this.analysis_types[model["analysis_type"]]}
+          <b>Type:</b> ${this.analysis_types[model["analysis_type"]]}
           <br/>
-          Data: ${this.data_types[model["data_type"]]}
+          <b>Data:</b> ${this.data_types[model["data_type"]]}
           `
         );
     }
-    
+  }
+
+  
+  getPolygonIntersections(vertexList: number[][]) {
+    axios.post('http://127.0.0.1:5000/modelsPolygon', { "polygon" : vertexList })
+      .then((response) => {
+        // console.log(response.data);
+        this.models = response.data;
+        this.addModelMarkers();
+      })
+      .catch((error) => {
+        console.log(error);
+      })
   }
 
 }

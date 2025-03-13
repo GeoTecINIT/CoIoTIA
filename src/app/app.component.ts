@@ -19,6 +19,18 @@ export class AppComponent {
     this.router.navigate(['login'])
   }
 
+  goMap() {
+    this.router.navigate(['/map'])
+  }
+
+  goModels() {
+    this.router.navigate(['/models'])
+  }
+
+  goDevices() {
+    this.router.navigate(['/devices'])
+  }
+
   async logout() {
     try {
       this.firebaseService.logout();

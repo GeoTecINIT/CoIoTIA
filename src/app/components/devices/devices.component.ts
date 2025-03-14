@@ -14,7 +14,10 @@ export class DevicesComponent implements OnInit {
   devices: any = [];
   analysis_types: any = {};
   data_types: any = {};
-  invalid: boolean = false;
+  invalid: {"show" : boolean, "msg_code" : number} = {"show" : false, "msg_code" : 0};
+
+  macPattern = /^([0-9A-Fa-f]{2}[:]){5}[0-9A-Fa-f]{2}$/;
+
 
   constructor(public firebaseService: FirebaseService) {};
 
@@ -35,15 +38,22 @@ export class DevicesComponent implements OnInit {
   }
 
   async addDevice(formValues: any) {
-    this.invalid = false;
+    this.invalid = {"show" : false, "msg_code" : -1};
+
+    const check = this.macPattern.test(formValues.mac);
+
+    if (!check) {
+      this.invalid = {"show" : true, "msg_code" : 2};
+      return;
+    }
 
     if (formValues.analysis_type === '' || formValues.data_type === '') {
-      this.invalid = true;
+      this.invalid = {"show" : true, "msg_code" : 1};
       return;
     }
     
     try {
-      await this.firebaseService.addDevice(formValues.analysis_type, formValues.data_type);
+      await this.firebaseService.addDevice(formValues.mac, formValues.analysis_type, formValues.data_type);
       this.devices = await this.firebaseService.getDevices();
     } catch (error: any) {
       console.log(error);

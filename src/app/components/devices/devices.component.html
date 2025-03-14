@@ -1,8 +1,9 @@
 <div class="m-3">
     <h3>My devices</h3>
 
-    <div *ngIf="invalid" class="alert alert-warning alert-dismissible fade show" role="alert">
-        Please select an analysis type and data type.
+    <div *ngIf="invalid.show" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <p *ngIf="invalid.msg_code == 1" class="mb-0">Please select an analysis type and data type.</p>
+        <p *ngIf="invalid.msg_code == 2" class="mb-0">Please provide a valid MAC address.</p>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
@@ -37,6 +38,7 @@
         <form #deviceForm="ngForm" (submit)="addDevice(deviceForm.value)">
             <div class="d-flex justify-content-evenly align-items-center">
                 <h5>New device:</h5>
+                <input type="text" class="form-control w-25" name="mac" ngModel placeholder="MAC Address">
                 <select class="form-select w-25" name="analysis_type" ngModel>
                     <option value="" disabled selected>Analysis type</option>
                     <option *ngFor="let analysis_type of analysis_types | keyvalue" [value]="analysis_type.key">

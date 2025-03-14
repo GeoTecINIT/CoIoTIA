@@ -150,13 +150,14 @@ export class FirebaseService {
     }
   }
 
-  async addDevice(analysis_type: string, data_type: string) {
+  async addDevice(device_id: string, analysis_type: string, data_type: string) {
     try {
       const userCollection = collection(this.db, "users");
       const userDoc = doc(userCollection, this.user?.uid);
       const deviceCollection = collection(userDoc, "devices");
 
-      await addDoc(deviceCollection, {analysis_type, data_type});
+      const deviceDoc = doc(deviceCollection, device_id);
+      await setDoc(deviceDoc, {analysis_type, data_type});
     } catch(error: any) {
       console.log(error);
     }

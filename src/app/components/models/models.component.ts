@@ -13,19 +13,28 @@ import axios from 'axios';
 
 export class ModelsComponent implements OnInit {
   models: any = [];
+  devices: any = [];
+
+  activeModel: any = "";
+
   analysis_types: any = {};
   data_types: any = {};
+
   selectedFile: File | null = null;
   updateFile: File | null = null;
+
   uploadingModel: boolean = false;
   modelUploaded: boolean = false;
   uploadError: {"show" : boolean, "code" : number} = { "show" : false, "code" : 0 };
+  loadError: boolean = false;
   invalid: { "show" : boolean, "message" : string } = { "show" : false, "message" : "" };
 
+  
   constructor(public firebaseService: FirebaseService) {};
 
   async ngOnInit() {
     this.getModels();
+    this.getDevices();
     const types = await this.firebaseService.getTypes();
     this.analysis_types = types?.analysisTypes;
     this.data_types = types?.dataTypes;
@@ -55,8 +64,18 @@ export class ModelsComponent implements OnInit {
     } catch (error) {
       console.log(error);
     }
+  }
 
-    
+  async getDevices() {
+    try {
+      await this.firebaseService.ensureAuthenticated();
+      this.devices = await this.firebaseService.getDevices();
+      const types = await this.firebaseService.getTypes();
+      this.analysis_types = types?.analysisTypes;
+      this.data_types = types?.dataTypes;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   uploadModel(formValues: any) {
@@ -146,7 +165,39 @@ export class ModelsComponent implements OnInit {
     });
 
     this.updateFile = null;
+  }
 
+
+  setActiveModel(model: any) {
+    this.activeModel = model;
+  }
+
+
+  loadModel(formValues: any) {
+    if (formValues.device === '') {
+      this.invalid = { "show" : true, "message" : "Please select a device." };
+      return;
+    }
+
+    const device = this.devices.find((device: any) => device.id === formValues.device);
+
+    if (this.activeModel.analysis_type != device.analysis_type || this.activeModel.data_type != device.data_type) {
+      this.invalid = { "show" : true, "message" : "Analysis and data types must match." };
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('model_name', this.activeModel.model_name);
+    formData.append('device_mac', formValues.device);
+
+    axios.post('http://127.0.0.1:5000/send', formData)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        this.loadError = true;
+      })
+    
   }
 
 }

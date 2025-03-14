@@ -119,8 +119,10 @@
             </div>
             <div class="modal-body">
                 <form #loadForm="ngForm" (submit)="loadModel(loadForm.value)">
-                    <input type="text" class="form-control mb-2" name="model" disabled ngModel [value]="activeModel.model_name">
-                    <select class="form-select mb-3" name="device" ngModel>
+                    <label for="model" class="form-label">Model</label>
+                    <input type="text" class="form-control mb-2" id="model" name="model" disabled ngModel [value]="activeModel.model_name">
+                    <label for="device" class="form-label">Device</label>
+                    <select class="form-select mb-3" id="device" name="device" ngModel>
                         <option value="" disabled selected>Device</option>
                         <option *ngFor="let device of devices" [value]="device.id" selected>
                             {{ device.id }}
